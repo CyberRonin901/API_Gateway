@@ -1,4 +1,4 @@
-package com.cyberronin.apigatewayservice.util;
+package com.cyberronin.apigatewayservice.config;
 
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.context.annotation.Bean;

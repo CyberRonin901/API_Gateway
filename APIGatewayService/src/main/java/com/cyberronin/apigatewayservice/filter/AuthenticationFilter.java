@@ -2,6 +2,8 @@ package com.cyberronin.apigatewayservice.filter;
 
 import com.cyberronin.apigatewayservice.util.JwtUtil;
 import com.cyberronin.apigatewayservice.util.RouteValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.annotation.Order;
@@ -13,7 +15,9 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component
-public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
+public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config>
+{
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
 
     private final JwtUtil jwtUtil;
     private final RouteValidator validator;
@@ -70,6 +74,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                             .header("X-User-Role", role)
                             .build();
 
+                    logger.info("API call authenticated");
                     return chain.filter(exchange.mutate().request(mutatedRequest).build());
 
                 } catch (Exception e) {
@@ -81,6 +86,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus status) {
+        logger.info(err + " | Status: " + status);
         exchange.getResponse().setStatusCode(status);
         return exchange.getResponse().setComplete();
     }

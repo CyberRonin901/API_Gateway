@@ -2,9 +2,10 @@
 - Routing (dynamic)
 - Auth
 - Rate limiting
+- Logging
+- Monitoring using actuator
 
 ### TODO:
-- Logging and monitoring
 - Error handling
 - Circuit breaking
 - Retry pattern
