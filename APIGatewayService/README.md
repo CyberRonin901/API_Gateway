@@ -1,10 +1,13 @@
 ### Things working / Done
-- Routing (Custom)
+- Routing (dynamic)
 - Auth
 - Rate limiting
 
 ### TODO:
+- Logging and monitoring
+- Error handling
 - Circuit breaking
+- Retry pattern
 
 ### API gateway request to response:
     User 
