@@ -1,0 +1,50 @@
+server:
+  port: 8080 # Server Port Number
+
+spring:
+  application:
+    name: API-Gateway-Service
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes: # Custom routing added here
+              - id: SERVICE-A # Give a name to the service
+                uri: lb://SERVICE-A # Use the name of the service found in the Eureka Dashboard
+                predicates:
+                  - Path=/demo/** # Route certain endpoints to the service
+                filters:
+                  - RewritePath=/demo/(?<segment>.*), /$\{segment}
+                  # Filter the endpoint to only pass the routed endpoint to the service without the base
+                  - AuthenticationFilter # Apply auth filter with role to routes
+                  - name: RoleFilter
+                    args:
+                      requiredRole: "ROLE_ADMIN"
+
+              - id: Auth-Admin-Service
+                uri: lb://AUTH-SERVICE
+                predicates:
+                  - Path=/auth/admin/**
+                filters:
+                  - AuthenticationFilter
+                  - name: RoleFilter
+                    args:
+                      requiredRole: "ROLE_ADMIN"
+
+              - id: Auth-Public-Service
+                uri: lb://AUTH-SERVICE
+                predicates:
+                  - Path=/auth/**
+
+
+          discovery:
+            locator:
+              lower-case-service-id: true
+              enabled: true
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway: TRACE
