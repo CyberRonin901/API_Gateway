@@ -6,6 +6,8 @@ spring:
       server:
         webflux:
           routes: # Custom routing added here
+
+#         -----Routing for service A-----
               - id: SERVICE-A # Give a name to the service
                 uri: lb://SERVICE-A # Use the name of the service found in the Eureka Dashboard
                 predicates:
@@ -13,11 +15,18 @@ spring:
                 filters:
                   - RewritePath=/demo/(?<segment>.*), /$\{segment}
                   # Filter the endpoint to only pass the routed endpoint to the service without the base
+                  - name: RequestRateLimiter
+                    args:
+                      key-resolver: "#{@userKeyResolver}"
+                      redis-rate-limiter.replenishRate: 3 # no. of tokens added to the bucket every second
+                      redis-rate-limiter.burstCapacity: 3 # Maximum tokens the bucket can hold (burst capacity)
+                      redis-rate-limiter.requestedTokens: 1 # no. tokens each request costs
                   - AuthenticationFilter # Apply auth filter with role to routes
                   - name: RoleFilter
                     args:
                       requiredRole: "ROLE_USER"
 
+#         -----Routing for Auth Service Admin endpoint-----
               - id: Auth-Admin-Service
                 uri: lb://AUTH-SERVICE
                 predicates:
@@ -28,16 +37,17 @@ spring:
                     args:
                       requiredRole: "ROLE_ADMIN"
 
+#         -----Routing for Auth Service public endpoints-----
               - id: Auth-Public-Service
                 uri: lb://AUTH-SERVICE
                 predicates:
                   - Path=/auth/**
-
-
-          discovery:
-            locator:
-              lower-case-service-id: true
-              enabled: true
+                filters:
+                  - name: RequestRateLimiter
+                    args:
+                      key-resolver: "#{@userKeyResolver}"
+                      redis-rate-limiter.replenishRate: 3 # no. of tokens added to the bucket every second
+                      redis-rate-limiter.burstCapacity: 3 # Maximum tokens the bucket can hold (burst capacity)
 
 logging:
   level:

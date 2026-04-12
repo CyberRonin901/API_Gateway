@@ -9,7 +9,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(2) // TODO: customize the order
 public class RoleFilter extends AbstractGatewayFilterFactory<RoleFilter.Config> {
 
     private final RouteValidator validator;

@@ -12,9 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-// TODO: add order for the filter chain
 @Component
-@Order(1)
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
     private final JwtUtil jwtUtil;

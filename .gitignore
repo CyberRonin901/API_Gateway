@@ -1,0 +1,52 @@
+# --- Build Artifacts ---
+target/
+build/
+out/
+*.jar
+*.war
+*.zip
+*.tar.gz
+*.rar
+
+# --- IDE Specifics ---
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/resources/archetype-resources/google-services.json
+
+# Eclipse
+.metadata
+.classpath
+.project
+.settings/
+bin/
+tmp/
+
+# VS Code
+.vscode/
+
+# --- Local Environment / Secrets ---
+.env
+.env.local
+application-local.properties
+application-local.yml
+# If you use docker-compose for local Redis testing
+.docker-env
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Wrapper files (Optional) ---
+# Some teams prefer to keep these to ensure build consistency.
+# Remove the '!' if you want to ignore them.
+!mvnw
+!mvnw.cmd
+!.mvn/wrapper/maven-wrapper.properties
