@@ -16,9 +16,11 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
-@Order(1)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalLoggingFilter implements GlobalFilter, Ordered {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalLoggingFilter.class);
@@ -30,56 +32,65 @@ public class GlobalLoggingFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        // UPSTREAM LOGGING (Request coming from Client)
-        URI upstreamUri = exchange.getRequest().getURI();
+        // [1] LOG REQUEST START
+        String path = exchange.getRequest().getURI().getPath();
         String method = exchange.getRequest().getMethod().name();
-
-        logger.info(">>> UPSTREAM: {} {}", method, upstreamUri.getPath());
+        logger.info(">>> START: {} {}", method, path);
 
         return chain.filter(exchange)
-                .then(Mono.fromRunnable(() -> {
-                    // DOWNSTREAM LOGGING (Request sent to Microservice)
-                    // This attribute is populated by the routing filter after predicates match
-                    URI downstreamUri = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR);
-                    HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
+                .doFinally(signalType -> {
+                    // [2] LOG RESPONSE END
+                    HttpStatusCode status = exchange.getResponse().getStatusCode();
+                    URI target = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR);
 
-                    if (downstreamUri != null) {
-                        logger.info("<<< DOWNSTREAM: {} | Target: {}{}",
-                                statusCode, downstreamUri.getHost(), downstreamUri.getPath());
-                    } else {
-                        logger.warn("<<< COMPLETED: {} | No downstream target found", statusCode);
+                    // Simple logic: If we have a target, show it. Otherwise, it failed early.
+                    String targetInfo = (target != null) ? target.getHost() + target.getPath() : "NONE";
+                    logger.info("<<< END: {} | Target: {}", status, targetInfo);
+
+                    // [3] LOG DOWNSTREAM TRACE (If Service A/B sent an error header)
+                    String errorHeader = exchange.getResponse().getHeaders().getFirst("X-Service-Error");
+                    if (errorHeader != null) {
+                        logger.error("!!! MICROSERVICE ERROR: {}", errorHeader);
                     }
-                }))
-                .onErrorResume(ex -> handleGatewayError(exchange, ex)).then();
+                })
+                .onErrorResume(ex -> handleGatewayError(exchange, ex));
     }
 
     private Mono<Void> handleGatewayError(ServerWebExchange exchange, Throwable ex) {
-        logger.error("GATEWAY FAILURE: {}", ex.getMessage());
+        // [4] LOG THE ACTUAL ERROR
+        // This is the only place we print the big stack trace
+        logger.error("!!! GATEWAY ERROR: {}", ex.getMessage());
 
         var response = exchange.getResponse();
+
+        // [5] CONFLICT PREVENTION
+        // If the response is already committed (headers sent), we CANNOT write JSON.
+        // This stops the "UnsupportedOperationException" you were seeing.
         if (response.isCommitted()) {
-            return Mono.error(ex);
+            return Mono.empty();
+//            return Mono.error(ex);
         }
 
-        response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-
-        // Error Response
-        var errorBody = java.util.Map.of(
-                "code", "GW-500",
-                "message", "An unexpected gateway error occurred"
-        );
-
+        // [6] PREPARE ERROR RESPONSE
         try {
-            byte[] bytes = objectMapper.writeValueAsBytes(errorBody);
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("error", "Gateway Error");
+            body.put("details", ex.getMessage());
+
+            byte[] bytes = objectMapper.writeValueAsBytes(body);
             return response.writeWith(Mono.just(response.bufferFactory().wrap(bytes)));
-        } catch (Exception jsonEx) {
+        } catch (Exception e) {
+            // If anything fails here (like headers being read-only), just finish the request
             return response.setComplete();
         }
     }
 
     @Override
     public int getOrder() {
+        // Runs before all other filters
         return Ordered.HIGHEST_PRECEDENCE;
     }
 }

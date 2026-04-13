@@ -1,6 +1,7 @@
 package com.cyberronin.apigatewayservice.config;
 
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
+import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
@@ -20,5 +21,11 @@ public class RateLimiterConfig {
         return exchange -> Mono.just(
                 exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
         );
+    }
+
+    @Bean
+    public RedisRateLimiter redisRateLimiter() {
+        // replenishRate: 3, burstCapacity: 3
+        return new RedisRateLimiter(3, 3);
     }
 }

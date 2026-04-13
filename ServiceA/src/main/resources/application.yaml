@@ -1,0 +1,18 @@
+spring:
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      SERVICE-B: # Matches the 'name' in @FeignClient
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+  timelimiter:
+    instances:
+      SERVICE-B:
+        timeoutDuration: 2s # If Service B takes > 2s, trigger fallback

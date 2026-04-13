@@ -4,11 +4,13 @@
 - Rate limiting
 - Logging
 - Monitoring using actuator
+- Circuit breaking
+- Retry pattern
 
 ### TODO:
 - Error handling
-- Circuit breaking
-- Retry pattern
+
+API gatway has its own circuit breaker, and Service A has its own for retrying and circuit breaking Service B
 
 ### API gateway request to response:
     User 
@@ -37,11 +39,17 @@
 
 
 ### Fiters
+    Global Logging Filter
+        ↓
     Rate Limiting Filter
         ↓
     Auth Filter
         ↓
     Role Filter
+        ↓
+      Retry
+        ↓
+    Circuit Breaker
 
 ### Rate Limiting
     Key Resolver (Rate Limit config)
