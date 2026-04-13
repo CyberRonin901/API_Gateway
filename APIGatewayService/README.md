@@ -8,7 +8,16 @@
 - Retry pattern
 
 ### TODO:
-- Error handling
+- Create root README with architecture overview and setup guide
+- Dockerize compose
+- Unit tests
+
+- Medium Priority:
+  - Implement error handling
+  - Add integration tests for auth flow
+- Low Priority: 
+  - Add performance benchmarks (JMeter)
+  - Add load testing results
 
 API gatway has its own circuit breaker, and Service A has its own for retrying and circuit breaking Service B
 

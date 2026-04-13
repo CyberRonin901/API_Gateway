@@ -8,8 +8,8 @@ import reactor.core.publisher.Mono;
 
 /*
 Takes the IP of machine which made the request
-If a load-balancer is btw the user and the API gateway,
-in that case it will not work as IP of the load-balancer will bw passed
+Ip load balancer is placed then take the IP of the user from the header placed by the lb
+To stop header spoofing, the load balancer must first strip the header from incoming request and then add its own header
 */
 
 @Configuration
@@ -17,10 +17,20 @@ public class RateLimiterConfig {
 
     @Bean
     public KeyResolver userKeyResolver() {
-        // Limits based on the client's IP address
-        return exchange -> Mono.just(
-                exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
-        );
+        return exchange -> {
+            // Try to get IP from X-Forwarded-For header first
+            String xForwardedFor = exchange.getRequest().getHeaders().getFirst("X-Forwarded-For");
+
+            String ip;
+            if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+                // The first IP in the list is the original client
+                ip = xForwardedFor.split(",")[0].trim();
+            } else {
+                // Fallback to direct remote address
+                ip = exchange.getRequest().getRemoteAddress().getAddress().getHostAddress();
+            }
+            return Mono.just(ip);
+        };
     }
 
     @Bean

@@ -1,9 +1,12 @@
 package com.cyberronin.apigatewayservice.util;
 
+import com.cyberronin.apigatewayservice.filter.AuthenticationFilter;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +20,7 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
     private final SecretKey key;
 
     public JwtUtil(@Value("${JWT_SECRET}") String secret)
@@ -54,7 +58,7 @@ public class JwtUtil {
                     .parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
             return false;
         }
     }

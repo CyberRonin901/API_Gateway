@@ -32,22 +32,29 @@ public class GlobalLoggingFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        // [1] LOG REQUEST START
+        // LOG REQUEST START
         String path = exchange.getRequest().getURI().getPath();
         String method = exchange.getRequest().getMethod().name();
         logger.info(">>> START: {} {}", method, path);
 
         return chain.filter(exchange)
                 .doFinally(signalType -> {
-                    // [2] LOG RESPONSE END
+                    // LOG RESPONSE END
                     HttpStatusCode status = exchange.getResponse().getStatusCode();
+
+                    if (status == HttpStatus.TOO_MANY_REQUESTS) {
+                        String ip = exchange.getRequest().getRemoteAddress().getAddress().getHostAddress();
+                        logger.warn("!!! RATE LIMIT EXCEEDED | IP: {} | Path: {}", ip, path);
+                    }
+
                     URI target = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR);
+                    logger.info("Target details: {}", target);
 
                     // Simple logic: If we have a target, show it. Otherwise, it failed early.
                     String targetInfo = (target != null) ? target.getHost() + target.getPath() : "NONE";
                     logger.info("<<< END: {} | Target: {}", status, targetInfo);
 
-                    // [3] LOG DOWNSTREAM TRACE (If Service A/B sent an error header)
+                    // LOG DOWNSTREAM TRACE (If Service A/B sent an error header)
                     String errorHeader = exchange.getResponse().getHeaders().getFirst("X-Service-Error");
                     if (errorHeader != null) {
                         logger.error("!!! MICROSERVICE ERROR: {}", errorHeader);
@@ -57,7 +64,7 @@ public class GlobalLoggingFilter implements GlobalFilter, Ordered {
     }
 
     private Mono<Void> handleGatewayError(ServerWebExchange exchange, Throwable ex) {
-        // [4] LOG THE ACTUAL ERROR
+        // LOG THE ERROR
         // This is the only place we print the big stack trace
         logger.error("!!! GATEWAY ERROR: {}", ex.getMessage());
 
@@ -71,7 +78,7 @@ public class GlobalLoggingFilter implements GlobalFilter, Ordered {
 //            return Mono.error(ex);
         }
 
-        // [6] PREPARE ERROR RESPONSE
+        // PREPARE ERROR RESPONSE
         try {
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
             response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
