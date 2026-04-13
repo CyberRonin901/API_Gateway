@@ -8,6 +8,10 @@ circuit breaking, and routing.
 Built with Spring Boot 4.0.5, Spring Cloud Gateway (WebFlux), and integrated with Eureka Service Discovery, 
 Redis for distributed rate limiting, and Resilience4j for circuit breaking patterns.
 
+![API gateway](./Diagrams/API%20gateway.svg)
+
+![Horizontal scaling](./Diagrams/Horizontal%20scaling.svg)
+
 ## Tech Stack
 
 - **Java**: 25
@@ -59,6 +63,8 @@ Redis for distributed rate limiting, and Resilience4j for circuit breaking patte
       ↓
     User
 
+![API gateway internal processing order](./Diagrams/API%20gateway%20internal%20processing%20order.svg)
+
 #### Fiters
     Global Logging Filter
         ↓
@@ -71,6 +77,8 @@ Redis for distributed rate limiting, and Resilience4j for circuit breaking patte
       Retry
         ↓
     Circuit Breaker
+
+![Filter chain](./Diagrams/Filter%20chain.svg)
 
 ### Dynamic Routing
 The gateway routes incoming requests to appropriate backend microservices using Eureka Service Discovery. 
@@ -105,6 +113,19 @@ The gateway implements JWT-based authentication and role-based authorization at 
 - Validates JWT tokens using HMAC-SHA256 signing
 - Extracts claims: username, role, userId (subject)
 - Logs validation errors for debugging
+
+![Auth filter](./Diagrams/Auth%20filter.svg)
+
+![Role filter](./Diagrams/Role%20filter.svg)
+
+![Auth Service](./Diagrams/Auth%20Service.svg)
+
+![Auth service user reg](./Diagrams/Auth%20Service%20user%20register.svg)
+
+![Auth service admin reg](./Diagrams/Auth%20Service%20admin%20register.svg)
+
+![Auth service login](./Diagrams/Auth%20Service%20login.svg)
+
 
 ### Rate Limiting
 The gateway implements distributed rate limiting per IP using Redis and the Token Bucket algorithm:
@@ -209,25 +230,3 @@ The service implements error handling at multiple levels:
 - API gateway has its circuit braker for direct microservice calls and Service A has its own for calling Service B
 - Service discovery is dynamic, allowing services to be added/removed without gateway restart
 - Logging is comprehensive at the gateway level for debugging and monitoring
-
-### Architecture Diagrams
-
-![API gateway](./Diagrams/API%20gateway.svg)
-
-![API gateway internal processing order](./Diagrams/API%20gateway%20internal%20processing%20order.svg)
-
-![Horizontal scaling](./Diagrams/Horizontal%20scaling.svg)
-
-![Filter chain](./Diagrams/Filter%20chain.svg)
-
-![Auth filter](./Diagrams/Auth%20filter.svg)
-
-![Role filter](./Diagrams/Role%20filter.svg)
-
-![Auth Service](./Diagrams/Auth%20Service.svg)
-
-![Auth service user reg](./Diagrams/Auth%20Service%20user%20register.svg)
-
-![Auth service admin reg](./Diagrams/Auth%20Service%20admin%20register.svg)
-
-![Auth service login](./Diagrams/Auth%20Service%20login.svg)
