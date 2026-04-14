@@ -49,10 +49,10 @@ docker-compose up --build
 
 **Access points:**
 - API Gateway: http://localhost:8080
-- Eureka Dashboard: http://localhost:8761
-- Auth Service: http://localhost:8100
-- Service A: http://localhost:8081
-- Service B: http://localhost:8082
+- Only for testing (should not be exposed in deployment)
+    - Eureka Dashboard: http://localhost:8761
+    - Service A: http://localhost:8081
+    - Service B: http://localhost:8082
 
 **Stop the project:**
 ```bash
