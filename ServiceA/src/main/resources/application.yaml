@@ -16,3 +16,10 @@ resilience4j:
     instances:
       SERVICE-B:
         timeoutDuration: 2s # If Service B takes > 2s, trigger fallback
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
+  instance:
+    prefer-ip-address: true

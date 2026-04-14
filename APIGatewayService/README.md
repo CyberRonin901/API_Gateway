@@ -6,14 +6,14 @@
 - Monitoring using actuator
 - Circuit breaking
 - Retry pattern
+- Docker compose
 
 ### TODO:
-- Dockerize compose
-- Unit tests
+- Implement error handling
+- Integrate monitoing to check circuit breaking
 
-- Medium Priority:
-  - Implement error handling
+- Later:
+  - Unit tests (JUnit)
   - Add integration tests for auth flow
-- Low Priority: 
   - Add performance benchmarks (JMeter)
   - Add load testing results

@@ -36,6 +36,29 @@ Redis for distributed rate limiting, and Resilience4j for circuit breaking patte
 - **Monitoring & Actuator**
 - **Error handling**
 
+## Quick Start (Docker)
+
+**Prerequisites:** Docker and Docker Compose installed
+
+**Start the project:**
+```bash
+cp .env.example .env
+# Edit .env with your secrets (optional)
+docker-compose up --build
+```
+
+**Access points:**
+- API Gateway: http://localhost:8080
+- Eureka Dashboard: http://localhost:8761
+- Auth Service: http://localhost:8100
+- Service A: http://localhost:8081
+- Service B: http://localhost:8082
+
+**Stop the project:**
+```bash
+docker-compose down
+```
+
 ## Core Functionality
 
 #### API gateway request to response:
