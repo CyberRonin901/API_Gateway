@@ -4,22 +4,45 @@ spring:
       circuitbreaker:
         enabled: true
 
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus,info
+  endpoint:
+    health:
+      show-details: always # Vital: Allows SBA to see WHY it's down
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
 resilience4j:
   circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        allowHealthIndicatorToFail: true
     instances:
-      SERVICE-B: # Matches the 'name' in @FeignClient
+      ServiceBInterfacegetData:
+        baseConfig: default
         slidingWindowSize: 10
+        minimumNumberOfCalls: 5 # trips faster for testing
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 3
-  timelimiter:
-    instances:
-      SERVICE-B:
-        timeoutDuration: 2s # If Service B takes > 2s, trigger fallback
 
 eureka:
   client:
     service-url:
-      defaultZone: http://discovery-service:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
   instance:
-    prefer-ip-address: true
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:localhost}
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:false}

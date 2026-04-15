@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.cyberronin</groupId>
-    <artifactId>ServiceA</artifactId>
+    <artifactId>AdminServer</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>ServiceA</name>
-    <description>ServiceA</description>
+    <name>AdminServer</name>
+    <description>AdminServer</description>
     <url/>
     <licenses>
         <license/>
@@ -28,39 +28,29 @@
     </scm>
     <properties>
         <java.version>25</java.version>
-        <spring-cloud.version>2025.1.1</spring-cloud.version>
         <spring-boot-admin.version>4.0.2</spring-boot-admin.version>
+        <spring-cloud.version>2025.1.1</spring-cloud.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-starter-server</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-micrometer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.codecentric</groupId>
-            <artifactId>spring-boot-admin-starter-client</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -82,7 +72,7 @@
     </dependencyManagement>
 
     <build>
-<!--        <finalName>Service_A</finalName>-->
+<!--        <finalName>AdminServer</finalName>-->
         <finalName>app</finalName>
         <plugins>
             <plugin>

@@ -66,7 +66,7 @@ public class GatewayResilienceConfig {
 
                                 // Circuit Breaker
                                 .circuitBreaker(cbConfig -> cbConfig
-                                        .setName("stableServiceCB")
+                                        .setName("SERVICE-A")
                                         .setFallbackUri("forward:/fallback/message"))
                         )
                         .uri("lb://SERVICE-A"))
@@ -93,7 +93,7 @@ public class GatewayResilienceConfig {
                                 .timeoutDuration(Duration.ofSeconds(2)) // If the backend takes > 2s, kill the request
                                 .build())
                         .build(),
-                "stableServiceCB" // This name must match the .setName() in RouteLocator
+                "SERVICE-A" // This name must match the .setName() in RouteLocator
         );
     }
 }

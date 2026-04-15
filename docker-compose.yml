@@ -4,8 +4,8 @@ services:
     container_name: api-gateway-postgres
     environment:
       POSTGRES_DB: AuthServiceDB
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./AuthService/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
@@ -20,9 +20,9 @@ services:
   redis:
     image: redis:7-alpine
     container_name: api-gateway-redis
-    command: redis-server --requirepass ${REDIS_PASSWORD:-redispass}
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redispass}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -43,7 +43,7 @@ services:
     ports:
       - "8761:8761"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      test: ["CMD-SHELL", "wget -q --spider http://discovery-service:8761/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -59,19 +59,21 @@ services:
         SERVICE_PATH: ./AuthService
     container_name: auth-service
     environment:
-      - SERVER_PORT=8100
+      - SERVER_PORT=8090
       - SPRING_R2DBC_URL=r2dbc:postgresql://api-gateway-postgres:5432/AuthServiceDB
-      - SPRING_R2DBC_USERNAME=postgres
-      - SPRING_R2DBC_PASSWORD=${DB_PASSWORD:-postgres}
-      - JWT_SECRET=${JWT_SECRET:-your-secret-key-at-least-32-chars-long!!}
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://discovery-service:8761/eureka
+      - SPRING_R2DBC_USERNAME=${DB_USERNAME}
+      - SPRING_R2DBC_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_INSTANCE_HOSTNAME=auth-service
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
     depends_on:
       postgres:
         condition: service_healthy
       discovery-service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8100/actuator/health"]
+      test: ["CMD-SHELL", "wget -q --spider http://auth-service:8090/actuator/health || exit 1"]
       interval: 20s
       timeout: 5s
       retries: 5
@@ -87,11 +89,14 @@ services:
     container_name: api-gateway
     environment:
       - SERVER_PORT=8080
-      - JWT_SECRET=${JWT_SECRET:-your-secret-key-at-least-32-chars-long!!}
-      - SPRING_DATA_REDIS_HOST=api-gateway-redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD:-redispass}
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://discovery-service:8761/eureka
+      - JWT_SECRET=${JWT_SECRET}
+      - SPRING_DATA_REDIS_HOST=${REDIS_HOST}
+      - SPRING_DATA_REDIS_PORT=${REDIS_PORT}
+      - SPRING_DATA_REDIS_USERNAME=${REDIS_USERNAME}
+      - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_INSTANCE_HOSTNAME=api-gateway
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
     ports:
       - "8080:8080"
     depends_on:
@@ -111,10 +116,12 @@ services:
         SERVICE_PATH: ./ServiceA
     container_name: service-a
     environment:
-      - SERVER_PORT=8081
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://discovery-service:8761/eureka
+      - SERVER_PORT=8180
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_INSTANCE_HOSTNAME=service-a
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
     ports:
-      - "8081:8081"
+      - "8180:8180"
     depends_on:
       discovery-service:
         condition: service_healthy
@@ -128,10 +135,32 @@ services:
         SERVICE_PATH: ./ServiceB
     container_name: service-b
     environment:
-      - SERVER_PORT=8082
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://discovery-service:8761/eureka
+      - SERVER_PORT=8280
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_INSTANCE_HOSTNAME=service-b
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
     ports:
-      - "8082:8082"
+      - "8280:8280"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    networks:
+      - api-gateway-network
+
+  admin-server:
+    build:
+      context: .
+      args:
+        SERVICE_PATH: ./AdminServer
+    container_name: admin-server
+    environment:
+      - SERVER_PORT=9090
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - SPRING_BOOT_ADMIN_DISCOVERY_SERVICES=*
+      - EUREKA_INSTANCE_HOSTNAME=admin-server
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+    ports:
+      - "9090:9090"
     depends_on:
       discovery-service:
         condition: service_healthy

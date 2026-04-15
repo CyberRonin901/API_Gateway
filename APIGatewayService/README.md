@@ -7,10 +7,10 @@
 - Circuit breaking
 - Retry pattern
 - Docker compose
+- Spring Admin Server for monitoring health, metrics and circuit breaking
 
 ### TODO:
 - Implement error handling
-- Integrate monitoing to check circuit breaking
 
 - Later:
   - Unit tests (JUnit)

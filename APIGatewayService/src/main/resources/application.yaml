@@ -57,13 +57,39 @@ management:
   health:
     circuitbreakers:
       enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus,info
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 eureka:
   client:
     service-url:
-      defaultZone: http://discovery-service:8761/eureka
+      defaultZone: http://discovery-service:8761/eureka/
   instance:
     prefer-ip-address: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      SERVICE-A: # Matches the name used in .circuitBreaker() in Java
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        registerHealthIndicator: true
+    metrics:
+      enabled: true
+    configs:
+      default:
+        registerHealthIndicator: true
+        allowHealthIndicatorToFail: true
 
 #logging:
 #  level:

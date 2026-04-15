@@ -5,8 +5,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @FeignClient(
-        name = "SERVICE-B",
-        fallback = ServiceBFallback.class)
+            name = "SERVICE-B",
+            contextId = "ServiceBInterfacegetData",
+            fallback = ServiceBFallback.class)
 public interface ServiceBInterface
 {
     @GetMapping("/data")
