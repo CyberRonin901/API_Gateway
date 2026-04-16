@@ -11,9 +11,11 @@
 
 ### TODO:
 - Implement error handling
+  - Add input validation (address existing TODO)
+  - Create custom exception classes
+  - Implement global exception handler
 
-- Later:
-  - Unit tests (JUnit)
-  - Add integration tests for auth flow
-  - Add performance benchmarks (JMeter)
-  - Add load testing results
+- Monitoring using prometheus + grafana
+
+- Unit tests (JUnit)
+- Add performance benchmarks (JMeter)
