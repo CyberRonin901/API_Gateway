@@ -15,7 +15,7 @@ jobs:
       - name: Debug Dateien
         run: ls -R
         
-      - name: Docker Image bauen- name: Docker Image bauen
+      - name: Docker Image bauen
         run: docker build . --file Dockerfile --build-arg SERVICE_PATH=AuthService --tag my-image-name:$(date +%s)
         
       - name: Debug Dateien
