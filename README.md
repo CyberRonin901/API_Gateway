@@ -1,3 +1,10 @@
+![CI](https://github.com/enexusde/API_Gateway_Codereview/actions/workflows/docker-image.yml/badge.svg)
+![Java](https://img.shields.io/badge/Java-25-blue?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?logo=spring)
+![Docker](https://img.shields.io/badge/Docker-enabled-2496ED?logo=docker)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql)
+![Redis](https://img.shields.io/badge/Redis-cache-DC382D?logo=redis)
+
 <h1 align="center">Spring Boot Gateway with Spring Cloud and WebFlux</h1>
 
 ## Project Overview
