@@ -1,0 +1,22 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        
+      - name: Debug Dateien
+        run: ls -R
+        
+      - name: Docker Image bauen
+        run: docker build . --file Dockerfile --build-arg SERVICE_PATH=AuthService --tag my-image-name:$(date +%s)
+        
+      - name: Debug Dateien
+        run: ls -R

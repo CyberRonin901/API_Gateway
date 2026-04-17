@@ -33,7 +33,7 @@ services:
     build:
       context: .
       args:
-        SERVICE_PATH: ./DiscoveryService
+        SERVICE_PATH: DiscoveryService
     container_name: discovery-service
     environment:
       - SERVER_PORT=8761
