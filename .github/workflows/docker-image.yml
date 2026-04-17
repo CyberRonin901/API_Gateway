@@ -1,18 +1,22 @@
-name: Docker Image CI
+name: Docker Build
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        
+      - name: Debug Dateien
+        run: ls -R
+        
+      - name: Docker Image bauen
+        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+        
+      - name: Debug Dateien
+        run: ls -R
