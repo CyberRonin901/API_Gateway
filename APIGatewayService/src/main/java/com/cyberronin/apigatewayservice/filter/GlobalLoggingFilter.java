@@ -65,12 +65,11 @@ public class GlobalLoggingFilter implements GlobalFilter, Ordered {
 
     private Mono<Void> handleGatewayError(ServerWebExchange exchange, Throwable ex) {
         // LOG THE ERROR
-        // This is the only place we print the big stack trace
-        logger.error("!!! GATEWAY ERROR: {}", ex.getMessage());
+        logger.error("!!! GATEWAY ERROR: {}", ex);
 
         var response = exchange.getResponse();
 
-        // [5] CONFLICT PREVENTION
+        // CONFLICT PREVENTION
         // If the response is already committed (headers sent), we CANNOT write JSON.
         // This stops the "UnsupportedOperationException" you were seeing.
         if (response.isCommitted()) {

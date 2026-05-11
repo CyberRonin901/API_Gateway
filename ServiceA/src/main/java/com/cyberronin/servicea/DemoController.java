@@ -18,7 +18,8 @@ public class DemoController {
 
     @GetMapping("/data")
     public String getData(){
-        String data = serviceB_interface.getData();
-        return "Data from Service A | " + data;
+//        String data = serviceB_interface.getData();
+//        return "Data from Service A | " + data;
+        return "Data from Service A only.";
     }
 }

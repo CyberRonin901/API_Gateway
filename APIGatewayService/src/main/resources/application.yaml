@@ -45,7 +45,7 @@ spring:
                 filters:
                   - name: RequestRateLimiter
                     args:
-                      key-resolver: "#{@userKeyResolver}"
+                      key-resolver: "#{@perIPKeyResolver}" # set ket resolver for endpoint(perIPKeyResolver or perJWTKeyResolver)
                       redis-rate-limiter.replenishRate: 3 # no. of tokens added to the bucket every second
                       redis-rate-limiter.burstCapacity: 3 # Maximum tokens the bucket can hold (burst capacity)
 
@@ -70,30 +70,14 @@ management:
         enabled: true
 
 eureka:
-  client:
-    service-url:
-      defaultZone: http://discovery-service:8761/eureka/
   instance:
     prefer-ip-address: true
 
 resilience4j:
   circuitbreaker:
-    instances:
-      SERVICE-A: # Matches the name used in .circuitBreaker() in Java
-        slidingWindowSize: 10
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-        registerHealthIndicator: true
     metrics:
       enabled: true
     configs:
       default:
         registerHealthIndicator: true
         allowHealthIndicatorToFail: true
-
-#logging:
-#  level:
-#    org:
-#      springframework:
-#        cloud:
-#          gateway: TRACE

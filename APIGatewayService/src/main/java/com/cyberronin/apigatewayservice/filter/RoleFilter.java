@@ -29,7 +29,7 @@ public class RoleFilter extends AbstractGatewayFilterFactory<RoleFilter.Config>
             // If route is public (Login/Register), bypass filter
             if (validator.isSecured.test(request)) {
 
-                // Grab the role from the header
+                // get the role from the header
                 String userRole = exchange.getRequest().getHeaders().getFirst("X-User-Role");
 
                 String required = config.getRequiredRole();

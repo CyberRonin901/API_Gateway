@@ -56,7 +56,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     }
 
                     // Extract info & mutate request for downstream services
-                    // so other services can use Username and UserId and Role
+                    // so they can use Username, UserId and Role
                     String userId = jwtUtil.extractUserId(token);
                     String username = jwtUtil.extractUsername(token);
                     String role = jwtUtil.extractRole(token);
