@@ -42,7 +42,7 @@ public class FilterChainConfig {
     @Bean
     public RouteLocator serviceA_Route(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("service-A", r -> r
+                .route("SERVICE-A", r -> r
                         .path("/demo/**")
                         .filters(f -> f
                                 // Rewrite Path to strip /demo and convert ex. /demo/hello to /hello and send to Service-A
@@ -72,7 +72,8 @@ public class FilterChainConfig {
                                         .setName("CIRCUIT-BREAKER")
                                         .setFallbackUri("forward:/fallback/message"))
                         )
-                        .uri("lb://SERVICE-A"))
+                        .uri("lb://SERVICE-A")
+                )
                 .build();
     }
 }
