@@ -33,7 +33,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
-            // If route is public (Login/Register), bypass filter
+            // If route is secure (other than Login/Register), then dont bypass filter
             if (validator.isSecured.test(request)) {
 
                 // Check for Authorization header
@@ -67,6 +67,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                                 httpHeaders.remove("X-User-Id");
                                 httpHeaders.remove("X-User-Name");
                                 httpHeaders.remove("X-User-Role");
+                                httpHeaders.remove(HttpHeaders.AUTHORIZATION);
                             })
                             // ADD verified headers here
                             .header("X-User-Id", userId)
